@@ -9,8 +9,11 @@ const prodRoutes = require("./routes/prod.routes");
 const downtimeRoutes = require("./routes/downtime.routes");
 const cookieParser = require("cookie-parser");
 
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
 app.use(cookieParser());
-app.use(cors());
 app.use(express.json());
 app.get("/", (req, res) => {
     res.send("API Running");
@@ -19,26 +22,12 @@ app.get("/", (req, res) => {
 app.use("/api/auth",authRoutes);
 app.use("/api/prod",prodRoutes);
 app.use("/api/downtime",downtimeRoutes);
-/*
-app.get("/api/downtime/production",(req,res){
 
-})
+app.get("/api/ping",(req,res) => {
+    res.json({
+        success: true,
+        message: "Backend is running"
+    });
+});
 
-app.post("/api/downtime/production",(req,res){
-
-})
-
-app.get("/api/downtime/pending",(req,res){
-
-})
-
-app.get("/api/machine-types",(req,res){
-
-})
-
-app.get("/api/issues",(req,res){
-
-})
-
-app.post("/api/downtime/")*/
 module.exports = app;
