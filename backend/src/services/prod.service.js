@@ -14,7 +14,8 @@ const productionDetails = async ({ Date }) => {
             id,
             date,
             job_number,
-            sku
+            sku,
+            operator
         FROM public.production
         WHERE date = $1
     `;
@@ -30,8 +31,30 @@ const productionDetails = async ({ Date }) => {
     return productionData;
 };
 
+const insertProductionDetails = async ({ Date, sku, job_number, operator }) => {
+    // Validate input
+    if (!Date || !sku || !job_number || !operator) {
+        throw new Error("Invalid data.");
+    }
+
+    // Find today's job number and SKU
+    const query = `
+        INSERT INTO production (date, sku, job_number, operator) VALUES ($1, $2, $3, $4)
+    `;
+    const value = [Date, sku, job_number, operator];
+    const result = await pool.query(query, value);
+    if (result == null) {
+        throw new Error("Invalid Data.");
+    }
+
+    const productionData = result.rows[0];
+
+    // Return user
+    return productionData;
+};
+
 
 
 module.exports = {
-    productionDetails
+    productionDetails, insertProductionDetails
 };
