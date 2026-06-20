@@ -8,4 +8,23 @@ const api = axios.create({
     }
 });
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+
+        if (error.response?.status === 401) {
+            console.log(error.message);
+            // clear any local state if needed
+            localStorage.clear();
+
+            // store message
+            localStorage.setItem("auth_error", "Session expired");
+
+            // redirect to login
+            //window.location.href = "/login";
+        }
+
+        return Promise.reject(error);
+    }
+);
 export default api;

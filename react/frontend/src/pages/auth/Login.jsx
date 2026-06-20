@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loginUser } from "../../api/auth.api";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +19,7 @@ function Login() {
             console.log("Login success:", data);
 
             // redirect after login
-            navigate("/");
+            navigate("/dashboard");
 
         } catch (err) {
             console.error("Login failed:", err.response?.data || err.message);
@@ -29,8 +29,39 @@ function Login() {
         }
     };
 
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+
+        const msg = localStorage.getItem("auth_error");
+
+        if (msg) {
+            setError(msg);
+            localStorage.removeItem("auth_error");
+        }
+
+    }, []);
+
+    useEffect(() => {
+        const checkLogin = async () => {
+            try {
+                await api.get("/auth/me");
+                navigate("/dashboard");
+            } catch {
+                // Not logged in, stay on login page
+            }
+        };
+
+        checkLogin();
+    }, []);
+
     return (
         <div style={styles.container}>
+            {error && (
+                <p style={{ color: "red", alignContent:top }}>
+                    {error}
+                </p>
+            )}
             <form style={styles.card} onSubmit={handleSubmit}>
 
                 <h2>Downtime Tracker Login</h2>

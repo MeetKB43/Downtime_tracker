@@ -1,8 +1,25 @@
 const prodService = require("../services/prod.service");
 exports.productionDetails = async (req, res) => {
     try {
-        
         const result = await prodService.productionDetails(req.body);
+        res.status(200).json({
+            success: true,
+            result: result
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(401).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+};
+exports.insertProductionDetails = async (req, res) => {
+    try {
+        console.log(req.body)
+        const result = await prodService.insertProductionDetails(req.body);
         res.status(200).json({
             success: true,
             result: result
@@ -17,10 +34,11 @@ exports.productionDetails = async (req, res) => {
 
     }
 };
-exports.insertProductionDetails = async (req, res) => {
+
+exports.updateProductionDetails = async (req, res) => {
     try {
-        
-        const result = await prodService.insertProductionDetails(req.body);
+        console.log(req.body)
+        const result = await prodService.updateProductionDetails(req.body);
         res.status(200).json({
             success: true,
             result: result

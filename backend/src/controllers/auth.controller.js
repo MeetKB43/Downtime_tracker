@@ -6,6 +6,7 @@ exports.login = async (req, res) => {
         res.cookie("token", result.token, {
             httpOnly: true,
             sameSite: "lax", // or "strict"
+            secure: false,
             maxAge: 12 * 60 * 60 * 1000 // 12 hours
         });
 

@@ -21,7 +21,7 @@ const pending = async () => {
     
     const result = await pool.query(query);
     if (result.rows.length === 0) {
-        throw new Error("No pending downtime entry found for today.");
+       return "";
     }
 
     const pending = result.rows;
@@ -30,9 +30,9 @@ const pending = async () => {
     return pending;
 };
 
-const insertDowntime = async ({machine_id, issue_id, dt_id}) => {
+const insertDowntime = async ({machine_id, issue_id, comments, operator, dt_id}) => {
     // Validate input
-    if (!dt_id || !machine_id || !issue_id) {
+    if (!dt_id || !machine_id || !issue_id ||!operator) {
         throw new Error("invalid data.");
     }
     // Find pending DT entries
@@ -40,12 +40,14 @@ const insertDowntime = async ({machine_id, issue_id, dt_id}) => {
         UPDATE downtime
         SET
             machine_id = $1,
-            issue_id = $2
+            issue_id = $2,
+            comments = $3,
+            operator = $4
         WHERE
-            dt_id = $3
+            dt_id = $5
         RETURNING *;
     `;
-    const values = [machine_id,issue_id,dt_id];
+    const values = [machine_id,issue_id, comments, operator, dt_id];
     const result = await pool.query(query,values);
     if (result.rows.length === 0) {
         throw new Error("Downtime entry not found.");
@@ -57,8 +59,43 @@ const insertDowntime = async ({machine_id, issue_id, dt_id}) => {
     return "Downtime updated";
 };
 
+const getMachines = async () => {
+    // Find pending DT entries
+    const query = `
+        SELECT * FROM machine;
+    `;
+    const result = await pool.query(query);
+    if (result.rows.length === 0) {
+        throw new Error("No machines listed.");
+    }
+
+    const machines = result.rows;
+
+    // Return user
+    return machines;
+};
+
+
+const getIssues = async ({machine_id}) => {
+    // Find pending DT entries
+    const query = `
+        SELECT * FROM Issue WHERE machine_id = $1;
+    `;
+    const result = await pool.query(query,[machine_id]);
+    if (result.rows.length === 0) {
+        throw new Error("No Issues listed with this machine.");
+    }
+
+    const Issues = result.rows;
+
+    // Return user
+    return Issues;
+};
+
 
 module.exports = {
     pending,
-    insertDowntime
+    insertDowntime,
+    getMachines,
+    getIssues
 };

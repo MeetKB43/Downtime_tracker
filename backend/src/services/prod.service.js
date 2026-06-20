@@ -14,8 +14,7 @@ const productionDetails = async ({ Date }) => {
             id,
             date,
             job_number,
-            sku,
-            operator
+            sku
         FROM public.production
         WHERE date = $1
     `;
@@ -31,20 +30,20 @@ const productionDetails = async ({ Date }) => {
     return productionData;
 };
 
-const insertProductionDetails = async ({ Date, sku, job_number, operator }) => {
+const insertProductionDetails = async ({ Date, sku, job_number }) => {
     // Validate input
-    if (!Date || !sku || !job_number || !operator) {
+    if (!Date || !sku || !job_number ) {
         throw new Error("Invalid data.");
     }
 
     // Find today's job number and SKU
     const query = `
-        INSERT INTO production (date, sku, job_number, operator) VALUES ($1, $2, $3, $4)
+        INSERT INTO production (date, sku, job_number) VALUES ($1, $2, $3)
     `;
-    const value = [Date, sku, job_number, operator];
+    const value = [Date, sku, job_number];
     const result = await pool.query(query, value);
     if (result == null) {
-        throw new Error("Invalid Data.");
+        throw new Error("Invalid Data1.");
     }
 
     const productionData = result.rows[0];
@@ -53,8 +52,34 @@ const insertProductionDetails = async ({ Date, sku, job_number, operator }) => {
     return productionData;
 };
 
+const updateProductionDetails = async ({ Date, sku, job_number}) => {
+    // Validate input
+    if (!Date || !sku || !job_number) {
+        throw new Error("Invalid data.");
+    }
 
+    // Find today's job number and SKU
+    const query = `
+        UPDATE production
+        SET
+            sku = $2,
+            job_number = $3
+        WHERE
+            Date = $1
+        RETURNING *;
+    `;
+    const value = [Date, sku, job_number];
+    const result = await pool.query(query, value);
+    if (result == null) {
+        throw new Error("Invalid Data1.");
+    }
+
+    const productionData = result.rows[0];
+
+    // Return user
+    return productionData;
+};
 
 module.exports = {
-    productionDetails, insertProductionDetails
+    productionDetails, insertProductionDetails, updateProductionDetails
 };
